@@ -1,1 +1,1 @@
-This application has all the code in the main.app file
+THIS UPDATED APPLICATION HAS ALL THE CODE IN ONE MAIN.PY FILE

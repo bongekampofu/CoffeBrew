@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+</head>
+<body>
+            <div class="header">
+               <div class = "text">
+                 <h3>Bean & Brew</h3> <br>
+               </div>
+                 <h4>Freshly Brewed Coffee</h4> <br>
+                <div class = "img">
+                    <img src="{{url_for('static', filename='images/coffee.jpg')}}" />
+                </div>
+            </div>
+         <br>
+
+         <button><a href="{{url_for('welcome')}}">Order As a Guest</a></button> <br> <br>
+            <button><a href="{{url_for('login')}}">Login</a></button> <br> <br>
+        <button><a href="{{url_for('register')}}">Create an account to buy</a></button> <br> <br>
+        <button><a href="{{url_for('register')}}">Restaurant space booking</a></button> <br><br>
+        <button><a href="{{url_for('register')}}">Book baking lessons</a></button> <br>
+
+</body>
+</html>

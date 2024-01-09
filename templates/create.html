@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+</head>
+<body>
+            <div class="header">
+                <h1>Bean & Brew</h1>
+                <p>Add a Food Item</p>
+            </div>
+
+      <div class="firstHalf">
+        <h2>Add Food Item</h2>
+        <form method="POST">
+          <label for="food_id">FoodID:</label>
+          <input type="text" name="food_id" required />
+          <label for="food_name">Food Name:</label>
+          <input type="text" name="food_name" required />
+          <label for="food_price">Price:</label>
+          <input type="text" name="food_price" required />
+          <label for="food_type">Food Type:</label>
+          <input type="text" name="food_type" required />
+          <button type="submit">Add</button>
+        </form>
+        <a href="{{url_for('welcome')}}"> Return to  ? Home Page </a>
+      </div>
+    </div>
+  </body>
+</html>

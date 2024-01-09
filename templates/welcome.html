@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+</head>
+<body>
+            <div class="header">
+                <h1>Bean & Brew</h1>
+                <p>Welcome</p>
+            </div>
+   <script>
+    </script>
+      <h3>Menu</h3>
+      <table>
+        <tr>
+         </tr>
+         {%for food in food%}
+            <tr>
+                <td>
+                      <a href="javascript:window.open('{{url_for('menu', type = food.food_name)}}', 'width=20,height=50', left=400, top =10);">{{food.food_name}}</a> <br>
+
+                </td>
+            </tr>
+          <tr>
+        </tr>
+          {%endfor%}
+          <tr></tr>
+          <tr>
+          <td>
+          <a href="{{url_for('logout')}}">Checkout</a><br> <br>
+            <a href="{{url_for('create')}}">Add New Food</a>
+          </td>
+          </tr>
+      </table>
+  </body>
+</html>

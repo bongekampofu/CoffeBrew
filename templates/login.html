@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+</head>
+<body>
+            <div class="header">
+                <h1>Bean & Brew</h1>
+                <p>Log In </p>
+            </div>
+    <form action="/login" method="POST">
+        <p>Enter Username:</p>
+        <p><input type="text" name="username" /></p>
+        <p>Enter Password:</p>
+        <p><input type="password" name="password" /></p>
+
+        <p><input type="submit" value="Submit" /></p>
+
+        <button><a href="{{url_for('register')}}">Register</a></button>
+    </form>
+</body>
+</html>

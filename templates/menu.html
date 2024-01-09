@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+</head>
+<body>
+            <div class="header">
+                <h1>Bean & Brew</h1>
+                <p>Menu</p>
+            </div>
+ <form method="POST" action="{{ url_for('order') }}">
+<p>
+         Food ID: {{food_id}}<br>
+         Menu: {{food_name}} <br>
+         Price: {{food_price}}
+
+
+    <input type="hidden" id="food_price" name="food_price" value={{food_price}}>
+    <input type="hidden" id="food_name" name='food_name' value= {{food_name}}>
+    <input type="hidden" id="food_id" name= "food_id" value= "{{food_id}}">
+</p>
+<div class="slidecontainer">
+  <input type="range" min="1" max="20" value="1" class="slider" id="myRange" name="name_of_slider">
+  <p>Quantity: <span id="demo"></span></p>
+    <label for="trans_option">Collect or delivery:</label>
+  <select id="trans_option" name="trans_option">
+      <option value="collect">Collect</option>
+      <option value="delivery">Delivery</option>
+  </select>
+    <br>
+    <br>
+    <br>
+    <input type="submit" value="Order">
+</div>
+
+
+
+
+<script>
+var slider = document.getElementById("myRange");
+var output = document.getElementById("demo");
+output.innerHTML = slider.value;
+
+slider.oninput = function() {
+  output.innerHTML = this.value;
+}
+</script>
+</form>
+</body>
+</html>

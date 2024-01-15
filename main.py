@@ -1,10 +1,20 @@
-import datetime
+import os
+import os.path as op
+
 from datetime import datetime as dt
+
+import PIL
 from sqlalchemy import Column, Integer, DateTime
 from flask import Flask, render_template, url_for, redirect, request
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.event import listens_for
+from markupsafe import Markup
+from flask_admin import Admin, form
+from flask_admin.form import rules
+from flask_admin.contrib import sqla, rediscli
+from PIL import Image
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required
 from flask_bcrypt import Bcrypt
 from sqlalchemy import ForeignKey
@@ -15,17 +25,36 @@ from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import relationship
 from sqlalchemy import select
 import operator
+from PIL import Image
+size = 100, 100
 
 admin = Admin()
 
 
-app = Flask(__name__)
+#app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
+#app = Flask(__name__, static_folder='static')
+
+# set optional bootswatch theme
+# see http://bootswatch.com/3/ for available swatches
+app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
+
 login_manager = LoginManager(app)
 bcrypt = Bcrypt(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.config['SECRET_KEY'] = 'this is a secret key '
+#new line below
+app.config['SQLALCHEMY_ECHO'] = True
+#end of new line
 db = SQLAlchemy(app)
+
+# Create directory for file fields to use
+file_path = op.join(op.dirname(__file__), 'static')
+try:
+    os.mkdir(file_path)
+except OSError:
+    pass
 
 
 admin.init_app(app)
@@ -60,13 +89,15 @@ def load_user(user_id):
 class Food(db.Model):
     __tablename__ = "food"
     food_id = db.Column(db.Integer, primary_key=True)
-    food_name = db.Column(db.String(20), unique=True, nullable=False)
+    food_name = db.Column(db.Unicode(64))
     food_price = db.Column(db.Numeric(10,2), nullable=False)
-    # food_price = db.Column(db.Numeric(10,2), nullable=False)
-    # food_image = db.Column(db.LargeBinary)
     food_type = db.Column(db.String(30), nullable=False)
+    #new line
+    path = db.Column(db.Unicode(128))
+    # new line ends here
 
-def __repr__(self):
+#def __repr__(self):
+def __unicode__(self): #new line
     return f'<Food {self.food_name}>'
 
 
@@ -112,13 +143,51 @@ class Pay(db.Model):
 
 def __repr__(self):
     return f'<Pay {self.pay_no}>'
+'''
+#new funtion del_image
+@listens_for(Image, 'after_delete')
+def del_image(mapper, connection, target):
+    if target.path:
+        # Delete image
+        try:
+            os.remove(op.join(file_path, target.path))
+        except OSError:
+            pass
+
+        # Delete thumbnail
+        try:
+            os.remove(op.join(file_path,
+                              form.thumbgen_filename(target.path)))
+        except OSError:
+            pass
+'''
+#class FoodView(ModelView):
+    #can_delete = False
+   # form_columns = ["food_name", "food_price", "food_type"]
+   # column_list = ["food_name", "food_price", "food_type"]
 
 
+class FoodView(sqla.ModelView):
+    def _list_thumbnail(view, context, model, name):
+        if not model.path:
+            return ''
+        return Markup('<img src="%s">' % url_for('static',
+                                                 filename=form.thumbgen_filename(model.path)))
+    column_formatters = {
+        'path': _list_thumbnail
+    }
 
-class FoodView(ModelView):
-    can_delete = False
-    form_columns = ["food_name", "food_price", "food_type"]
-    column_list = ["food_name", "food_price", "food_type"]
+    # Alternative way to contribute field is to override it completely.
+    # In this case, Flask-Admin won't attempt to merge various parameters for the field.
+    form_extra_fields = {
+        'path': form.ImageUploadField('Image',
+                                      base_path=file_path,
+                                      thumbnail_size=(100, 100, True))
+                                      #thumbnail_size=((100,100),PIL.Image.Resampling.LANCZOS))
+                                        #thumbnail_size = ((100, 100, True), PIL.Image.Resampling.LANCZOS))
+                                                                          }
+
+
 
 admin.add_view(ModelView(User, db.session))
 admin.add_view(FoodView(Food, db.session))
@@ -316,6 +385,10 @@ def logout():
 
 
 if __name__ == "__main__":
+    app_dir = op.realpath(os.path.dirname(__file__))
+    #database_path = op.join(app_dir, app.config['DATABASE_FILE'])
     with app.app_context():
         db.create_all()
     app.run(debug=True)
+
+

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+  <h4>Upload New Menu</h4>
+    <form method="post" enctype="multipart/form-data">
+             <label for="food_name">Food Name:</label>
+          <input type="text" name="food_name" required />  <br><br>
+
+            <label for="food_price">Price:</label>
+          <input type="text" name="food_price" required />  <br><br>
+
+          <label for="food_type">Food Type:</label>
+          <input type="text" name="food_type" required /><br><br>
+
+          <input type="file" name="file1"> <br><br>
+
+
+          <button type="submit">Add Menu</button><br>
+    </form>
+   <a href="{{url_for('welcome')}}"> Return to  ? Home Page </a>
+</body>
+</html>

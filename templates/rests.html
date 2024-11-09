@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List of Restaurants</title>
+    <style>
+        /* Basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .rest {
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            padding: 20px;
+            overflow: hidden;
+        }
+        .rest img {
+            float: left;
+            margin-right: 20px;
+            max-width: 200px;
+            height: auto;
+        }
+        .rest-details {
+            overflow: hidden;
+        }
+        .rest-name {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .rest-address {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .rest-rating {
+            font-size: 18px;
+            font-weight: bold;
+            color: #FFA500;
+        }
+        /* Calendar styling */
+        .calendar-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .calendar {
+            width: 45%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Check-in and check-out calendars -->
+        <div class="calendar-container">
+            <div class="calendar">
+                <!-- Insert your check-in calendar here -->
+                Check-in Calendar
+            </div>
+            <div class="calendar">
+                <!-- Insert your check-out calendar here -->
+                Check-out Calendar
+            </div>
+        </div>
+
+        <!-- Hotels -->
+        <div class="rest">
+            <a href="/rest1_tables">
+                <img src="{{ url_for('static', filename='swindon_hotel1.jpeg') }}" alt="Swindon Restaurant">
+                <div class="rest-details">
+                    <div class="hotel-name">Swindon Restaurant</div>
+                    <div class="hotel-address">123 Main Street, Swindon, United Kingdom</div>
+                    <div class="hotel-rating">★★★☆☆</div>
+                </div>
+            </a>
+        </div>
+
+        <div class="rest">
+            <a href="/rest2_tables">
+                <img src="{{ url_for('static', filename='swindon_hotel2.jpeg') }}" alt="Orson Restaurant">
+                <div class="rest-details">
+                    <div class="rest-name">Orson Restaurant</div>
+                    <div class="rest-address">77 Picadilly Street, Salisbury, United Kingdom</div>
+                    <div class="rest-rating">★★★★☆</div>
+                </div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Booking</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+    <style>
+        /* Center the form and limit its width */
+        .form-container {
+            max-width: 20%; /* Adjust width as needed */
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5 form-container">
+        <h2 class="text-center">Book a Table</h2>
+
+        <form action="/book_table" method="POST">
+            <!-- Number of People -->
+            <div class="mb-3">
+                <label for="people" class="form-label">Number of People</label>
+                <select id="people" name="people" class="form-select" required>
+                    <option value="" selected disabled>Choose number of people</option>
+                    <option value="2">2 people</option>
+                    <option value="3">3 people</option>
+                    <option value="4">4 people</option>
+                    <option value="5">5 people</option>
+                    <option value="6">6 people</option>
+                </select>
+            </div>
+
+            <!-- Date Selection -->
+            <div class="mb-3">
+                <label for="date" class="form-label">Select Date</label>
+                <input type="date" id="date" name="date" class="form-control" required>
+            </div>
+
+            <!-- Time Selection -->
+            <div class="mb-3">
+                <label for="time" class="form-label">Select Time</label>
+                <select id="time" name="time" class="form-select" required>
+                    <option value="" selected disabled>Choose time</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="13:00">1:00 PM</option>
+                    <option value="14:00">2:00 PM</option>
+                    <option value="18:00">6:00 PM</option>
+                    <option value="19:00">7:00 PM</option>
+                    <option value="20:00">8:00 PM</option>
+                </select>
+            </div>
+
+            <!-- Find a Table Button -->
+            <button type="submit" class="btn btn-primary w-100">Find a Table</button>
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

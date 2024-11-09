@@ -1,0 +1,17 @@
+{% extends "home.html" %}
+
+{% block content %}
+    <div class="header">
+        <h4>Bean & Brew</h4>
+        <p>Thank you for your payment</p>
+    </div>
+
+    <h3>Receipt</h3>
+
+    <p>Customer Name:  {{ recentp.cust_name }}</p>
+    <p>Order No:       {{ recentp.order_no }}</p>
+    <p>Amount Paid:    £{{ recentp.total_price }}</p>
+
+    <a href="{{ url_for('welcome') }}">Return to Home Page</a> <br>
+    <button><a href="{{ url_for('logout') }}">Logout</a></button>
+{% endblock %}

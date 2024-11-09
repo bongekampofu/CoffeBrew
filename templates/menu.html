@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Menu</title>
+</head>
+<body>
+    <h1>Bean & Brew</h1>
+    <p>Menu</p>
+
+    <form id="addToCartForm" method="POST" action="{{ url_for('addtocart') }}">
+        <p>
+            Food ID: {{ food_id }}<br>
+            Menu: {{ food_name }}<br>
+            Price: {{ food_price }}
+        </p>
+
+        <input type="hidden" id="food_price" name="food_price" value="{{ food_price }}">
+        <input type="hidden" id="food_name" name="food_name" value="{{ food_name }}">
+        <input type="hidden" id="food_id" name="food_id" value="{{ food_id }}">
+
+        <div class="slidecontainer">
+            <input type="range" min="1" max="20" value="1" class="slider" id="myRange" name="name_of_slider">
+            <p>Quantity: <span id="demo"></span></p>
+        </div>
+
+        <input type="submit" id="addButton" value="Add to Cart">
+    </form>
+
+    <p id="feedbackMessage" style="display:none; color:green;">Item successfully added to the cart!</p>
+
+    <script>
+        // Update quantity display when slider is moved
+        var slider = document.getElementById("myRange");
+        var output = document.getElementById("demo");
+        output.innerHTML = slider.value;
+
+        slider.oninput = function() {
+            output.innerHTML = this.value;
+        };
+
+        // Handle form submission using AJAX
+        document.getElementById('addToCartForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the form from submitting the traditional way
+
+            var formData = new FormData(this); // Gather the form data
+            var submitButton = document.getElementById('addButton');
+            var feedbackMessage = document.getElementById('feedbackMessage');
+
+            // Disable the button to prevent multiple clicks
+            submitButton.disabled = true;
+            submitButton.value = 'Adding...'; // Feedback for the user
+
+            fetch("{{ url_for('addtocart') }}", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error adding item to cart');
+                }
+                return response.json();  // Assuming your server returns JSON
+            })
+            .then(data => {
+                // Show success message
+                feedbackMessage.style.display = 'block';
+
+                // Attempt to close the window
+                setTimeout(function() {
+                    window.close();
+                }, 1000); // Delay before closing to give time for feedback
+            })
+            .catch(error => {
+                console.error("Error adding to cart:", error);
+                submitButton.disabled = false;  // Re-enable button if there's an error
+                submitButton.value = 'Add to Cart';
+            });
+        });
+    </script>
+</body>
+</html>
+

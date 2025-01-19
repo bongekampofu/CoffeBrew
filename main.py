@@ -3,7 +3,7 @@ import os
 import os.path as op
 from datetime import datetime as dt
 from sqlalchemy import Column, Integer, DateTime
-from flask import Flask, render_template, url_for, redirect, request
+from flask import Flask, render_template, send_from_directory, url_for, redirect, request
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_sqlalchemy import SQLAlchemy
@@ -33,9 +33,44 @@ from wtforms import PasswordField
 #new imports
 from sqlalchemy.ext.hybrid import hybrid_property
 
+from jinja2 import TemplateNotFound  # Import TemplateNotFound exception
+import logging
+
+#for xml files
+from xml.etree.ElementTree import Element, SubElement, tostring, ElementTree
+from datetime import datetime as dt
+
 
 admin = Admin()
 app = Flask(__name__, static_folder='static')
+
+#log errors
+app_dir = op.realpath(os.path.dirname(__file__))
+logger = logging.getLogger('app_logger')
+logger.setLevel(logging.DEBUG)  # Set the logger level to DEBUG or higher
+
+# Create a file handler and set the level to DEBUG
+log_file_path = op.join(app_dir, 'app.log')
+handler = logging.FileHandler(log_file_path)
+
+# Create a formatter and set it for the handler
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+
+# Add the handler to the logger
+logger.addHandler(handler)
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    logger.error('Page not found: %s', e)
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    logger.error('Page not found: %s', e)
+    db.session.rollback()
+    return render_template('500.html'), 500
 
 # see http://bootswatch.com/3/ for available swatches
 app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
@@ -139,8 +174,6 @@ class Pay(db.Model):
 
     orders = db.relationship("Order", back_populates="pay_reference")  # Relationship to Order
 
-    def __repr__(self):
-        return f'<Pay {self.pay_no}>'
 
 
 class Rest(db.Model):
@@ -228,9 +261,23 @@ def register():
         password = request.form['password']
         hashed_password = bcrypt.generate_password_hash(
             password).decode('utf-8')
-        new_customer = Customer(username=username, email=email, password=hashed_password)
-        db.session.add(new_customer)
-        db.session.commit()
+
+        checkemail = Customer.query.filter(Customer.email == email).first()
+        checkuser = Customer.query.filter(Customer.username == username).first()
+
+        if checkemail != None:
+            flash("Please register using a different email.")
+
+            return render_template("register.html")
+        elif checkuser is not None:
+            flash("Username already exists !")
+
+            return render_template("register.html")
+
+        else:
+            new_customer = Customer(username=username, email=email, password=hashed_password)
+            db.session.add(new_customer)
+            db.session.commit()
         return redirect(url_for('login'))
     return render_template('register.html')
 
@@ -334,7 +381,7 @@ def payment():
                 quantity = cartitem.quantity
                 total_price += Decimal(cartitem.food.food_price * cartitem.quantity)
 
-            new_order = Order(food_id=food_id, quantity=quantity, order_no=orderno)
+            new_order = Order(food_id=food_id, quantity=quantity, order_no=orderno, pay_order_no=orderno)
             db.session.add(new_order)
             db.session.commit()
 
@@ -479,24 +526,89 @@ def update():
             return redirect(url_for('welcome'))
         return render_template('update.html')
 
+@app.route('/view-orders')
+def view_orders():
+    file_name = "orders.xml"
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
+
+    # Ensure the file exists before attempting to serve it
+    if os.path.exists(file_path):
+        return send_from_directory(app.config['UPLOAD_FOLDER'], file_name)
+    else:
+        return "No orders.xml file found.", 404
+
+@app.route('/download-orders')
+def download_orders():
+    file_name = "orders.xml"
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
+
+    # Ensure the file exists before attempting to download
+    if os.path.exists(file_path):
+        return send_from_directory(app.config['UPLOAD_FOLDER'], file_name, as_attachment=True)
+    else:
+        return "No orders.xml file found.", 404
+
+
 
 @app.route('/logout')
 def logout():
     #db.session.pop("username", None)
     db.session.query(CartItem).delete()
-    db.session.commit()    ##
-
-    db.session.execute(u)
     db.session.commit()
 
     del login_session['username']
     logout_user()
     return redirect(url_for('login'))
 
+#create xml files
+def export_to_xml(file_name="orders.xml"):
+    # Ensure the static directory exists
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
+
+    # Query data from the database
+    orders = Order.query.all()
+
+    # Create or append to the XML file
+    if os.path.exists(file_path):
+        tree = ElementTree()
+        tree.parse(file_path)
+        root = tree.getroot()
+    else:
+        root = Element("Orders")
+
+    for order in orders:
+        # Add Order details
+        order_elem = SubElement(root, "Order")
+        SubElement(order_elem, "OrderNo").text = str(order.order_no)
+        SubElement(order_elem, "FoodID").text = str(order.food_id)
+        SubElement(order_elem, "Quantity").text = str(order.quantity)
+
+        # Add Payment details if available
+        if order.pay_reference:
+            pay_elem = SubElement(order_elem, "Payment")
+            SubElement(pay_elem, "PayNo").text = str(order.pay_reference.pay_no)
+            SubElement(pay_elem, "TotalPrice").text = str(order.pay_reference.total_price)
+            SubElement(pay_elem, "CustomerName").text = order.pay_reference.cust_name
+            SubElement(pay_elem, "CustomerAddress").text = order.pay_reference.cust_address
+            SubElement(pay_elem, "CustomerPostcode").text = order.pay_reference.cust_postcode
+            SubElement(pay_elem, "CustomerEmail").text = order.pay_reference.cust_email
+            SubElement(pay_elem, "TransactionOption").text = order.pay_reference.trans_option or "N/A"
+            SubElement(pay_elem, "PaymentDateTime").text = order.pay_reference.pay_datetime.strftime("%Y-%m-%d %H:%M:%S")
+
+    # Write the XML file to the static directory
+    tree = ElementTree(root)
+    with open(file_path, "wb") as file:
+        tree.write(file, encoding="utf-8", xml_declaration=True)
+
+    print(f"Data exported successfully to {file_path}")
+
+#end of xml code
+
 
 if __name__ == "__main__":
     app_dir = op.realpath(os.path.dirname(__file__))
     with app.app_context():
         db.create_all()
+        export_to_xml()
     app.run(debug=True)
-
